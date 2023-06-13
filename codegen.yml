@@ -1,0 +1,11 @@
+schema: "pages/schema/schema.graphql"
+documents: "pages/graphql/*.graphql"
+generates:
+  pages/graphql/generated.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-query"
+      - "fragment-matcher"
+    config:
+      dedupeFragments: true
