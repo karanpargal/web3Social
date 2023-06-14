@@ -7,18 +7,48 @@ import {
 import { readAccessToken, setAccessToken } from "./helper";
 
 export async function refreshToken() {
+  const refreshToken = readAccessToken()?.refreshToken;
 
-    const refreshToken = readAccessToken()?.refreshToken;
+  if (!refreshToken) throw new Error("No refresh token");
 
-    if (!refreshToken) throw new Error("No refresh token");
+  async function fetchData<TData, TVariables>(
+    query: string,
+    variables?: TVariables,
+    options?: RequestInit["headers"]
+  ) {
+    const res = await fetch("https://api.lens.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        ...options,
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
 
-    const result = await fetcher<RefreshMutation, RefreshMutationVariables>(RefreshDocument, {
-        request: {
-          refreshToken: refreshToken,
-        },
-      })();
+    const json = await res.json();
 
-    setAccessToken(result.refresh.accessToken, result.refresh.refreshToken);
+    if (json.errors) {
+      const { message } = json.errors[0] || {};
+      throw new Error(message || "Error…");
+    }
 
-    return result.refresh.accessToken;
+    return json.data;
+  }
+
+  const result = await fetchData<RefreshMutation, RefreshMutationVariables>(
+    RefreshDocument,
+    {
+      request: {
+        refreshToken: refreshToken,
+      },
+    }
+  );
+
+  setAccessToken(result.refresh.accessToken, result.refresh.refreshToken);
+
+  return result.refresh.accessToken;
 }

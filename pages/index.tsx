@@ -6,6 +6,7 @@ import {
 } from "./graphql/generated";
 import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
 import useLogin from "./auth/useLogin";
+import SignIn from "./components/SignIn";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,14 +22,5 @@ export default function Home() {
   //   console.log(data);
   // }
 
-  const address = useAddress();
-  const {mutate}  = useLogin()
-
-  if(!address) {
-    return <ConnectWallet />
-  }
-
-  
-
-  return <button onClick={()=> mutate()}>Hahhahahha</button>;
+  return <SignIn />;
 }
