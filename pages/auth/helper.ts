@@ -11,6 +11,7 @@ export function readAccessToken() {
 
   const data = localStorage.getItem(STORAGE_KEY);
 
+
   return data
     ? (JSON.parse(data) as {
         accessToken: string;
@@ -24,9 +25,9 @@ export function setAccessToken(accessToken: string, refreshToken: string) {
   const { exp } = parseJwt(accessToken);
 
   const ls = localStorage || window.localStorage;
-
   if (!ls) return;
 
+  
   ls.setItem(
     STORAGE_KEY,
     JSON.stringify({

@@ -10,6 +10,7 @@ export default function useLensUser() {
     return { accessToken, refreshToken, exp };
   });
 
+
   const profileQuery = useDefaultProfileQuery(
     {
       request: {

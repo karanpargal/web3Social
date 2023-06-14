@@ -9,10 +9,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const queryClient = new QueryClient();
 
-  const desiredChainId = ChainId.Polygon;
+  const desiredChainId = ChainId.Mumbai;
 
   return (
-    <ThirdwebProvider activeChain="polygon">
+    <ThirdwebProvider activeChain="mumbai">
     <QueryClientProvider client={new QueryClient()}>
       <Component {...pageProps} />
     </QueryClientProvider>

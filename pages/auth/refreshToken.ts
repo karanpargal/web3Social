@@ -15,8 +15,8 @@ export async function refreshToken() {
     query: string,
     variables?: TVariables,
     options?: RequestInit["headers"]
-  ) {
-    const res = await fetch("https://api.lens.dev/", {
+  ): Promise<TData> {
+    const res = await fetch("https://api-mumbai.lens.dev", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

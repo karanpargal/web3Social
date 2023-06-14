@@ -562,6 +562,13 @@ export type CreatePostEip712TypedDataValue = {
   referenceModuleInitData: Scalars['ReferenceModuleData']['output'];
 };
 
+export type CreateProfileRequest = {
+  followModule?: InputMaybe<FollowModuleParams>;
+  followNFTURI?: InputMaybe<Scalars['Url']['input']>;
+  handle: Scalars['CreateHandle']['input'];
+  profilePictureUri?: InputMaybe<Scalars['Url']['input']>;
+};
+
 export type CreatePublicCommentRequest = {
   collectModule: CollectModuleParams;
   contentURI: Scalars['Url']['input'];
@@ -1710,6 +1717,7 @@ export type Mutation = {
   createNftGallery: Scalars['NftGalleryId']['output'];
   createPostTypedData: CreatePostBroadcastItemResult;
   createPostViaDispatcher: RelayResult;
+  createProfile: RelayResult;
   createSetDefaultProfileTypedData: SetDefaultProfileBroadcastItemResult;
   createSetDispatcherTypedData: CreateSetDispatcherBroadcastItemResult;
   createSetFollowModuleTypedData: CreateSetFollowModuleBroadcastItemResult;
@@ -1864,6 +1872,11 @@ export type MutationCreatePostTypedDataArgs = {
 
 export type MutationCreatePostViaDispatcherArgs = {
   request: CreatePublicPostRequest;
+};
+
+
+export type MutationCreateProfileArgs = {
+  request: CreateProfileRequest;
 };
 
 

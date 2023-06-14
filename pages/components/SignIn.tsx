@@ -14,7 +14,7 @@ export default function SignIn({}: Props) {
   const address = useAddress();
   const isWrongNetwork = useNetworkMismatch();
   const switchChain = useSwitchChain();
-  const { tokenData, profileData} = useLensUser();
+  const { tokenData, profileData } = useLensUser();
   const { mutate: requestLogin } = useLogin();
 
   if (!address) {
@@ -28,25 +28,34 @@ export default function SignIn({}: Props) {
   if (isWrongNetwork) {
     return (
       <div>
-        <button onClick={() => switchChain(137)}>Switch to Polygon</button>
+        <button onClick={() => switchChain(80001)}>
+          Switch to Polygon Mumbai
+        </button>
       </div>
     );
   }
 
-  if(tokenData.isLoading || profileData.isLoading){
-    return <div>Loading...</div>
+  if (tokenData.isLoading || profileData.isLoading) {
+    return <div>Loading...</div>;
   }
 
-  if(!tokenData.data){
-    return <div>
-      <button onClick={() => requestLogin()}>Login</button>
-    </div>
+  if (
+    tokenData.data?.accessToken === undefined ||
+    tokenData.data?.accessToken === null
+  ) {
+    return (
+      <div>
+        <button onClick={() => requestLogin()}>Login</button>
+      </div>
+    );
   }
 
-  if(!profileData.data?.defaultProfile){
-    return <div>
-      <button>You dont have a profile!</button>
-    </div>
+  if (!profileData.data?.defaultProfile) {
+    return (
+      <div>
+        <button>You dont have a profile!</button>
+      </div>
+    );
   }
 
   return (
@@ -54,7 +63,4 @@ export default function SignIn({}: Props) {
       <div>Hello {profileData.data?.defaultProfile?.handle}</div>
     </div>
   );
-
-
-  
 }

@@ -16,12 +16,11 @@ export const fetcher = <TData, TVariables>(
     if (isTokenExpired(token.exp)) {
       accessToken = await refreshToken();
     }
-
     return accessToken;
   }
 
   return async () => {
-    const res = await fetch("https://api.lens.dev/", {
+    const res = await fetch("https://api-mumbai.lens.dev", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
