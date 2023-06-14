@@ -2,6 +2,7 @@ import { useAddress, useSDK } from "@thirdweb-dev/react";
 import generateChallenge from "./genChallenge";
 import { useAuthenticateMutation } from "../graphql/generated";
 import { useMutation } from "@tanstack/react-query";
+import { setAccessToken } from "./helper";
 
 export default function useLogin() {
   const address = useAddress();
@@ -20,7 +21,12 @@ export default function useLogin() {
       },
     });
 
-    console.log(authenticate);
+    const { accessToken, refreshToken } = authenticate;
+
+    setAccessToken(accessToken, refreshToken);
+
+    
+
   }
 
   return useMutation(login);
