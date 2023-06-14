@@ -1,4 +1,5 @@
 import { useMutation, useQuery, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query';
+import { fetcher } from './auth-fetcher';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -6,26 +7,6 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
-
-function fetcher<TData, TVariables>(endpoint: string, requestInit: RequestInit, query: string, variables?: TVariables) {
-  return async (): Promise<TData> => {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      ...requestInit,
-      body: JSON.stringify({ query, variables }),
-    });
-
-    const json = await res.json();
-
-    if (json.errors) {
-      const { message } = json.errors[0];
-
-      throw new Error(message);
-    }
-
-    return json.data;
-  }
-}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string | number; output: string; }
@@ -3633,6 +3614,13 @@ export type AuthenticateMutationVariables = Exact<{
 
 export type AuthenticateMutation = { __typename?: 'Mutation', authenticate: { __typename?: 'AuthenticationResult', accessToken: any, refreshToken: any } };
 
+export type ChallengeQueryVariables = Exact<{
+  request: ChallengeRequest;
+}>;
+
+
+export type ChallengeQuery = { __typename?: 'Query', challenge: { __typename?: 'AuthChallengeResult', text: string } };
+
 export type CreateCommentTypedDataMutationVariables = Exact<{
   request: CreatePublicCommentRequest;
 }>;
@@ -3767,6 +3755,13 @@ export type CreateMirrorTypedDataMutationVariables = Exact<{
 
 
 export type CreateMirrorTypedDataMutation = { __typename?: 'Mutation', createMirrorTypedData: { __typename?: 'CreateMirrorBroadcastItemResult', id: any, expiresAt: any, typedData: { __typename?: 'CreateMirrorEIP712TypedData', types: { __typename?: 'CreateMirrorEIP712TypedDataTypes', MirrorWithSig: Array<{ __typename?: 'EIP712TypedDataField', name: string, type: string }> }, domain: { __typename?: 'EIP712TypedDataDomain', name: string, chainId: any, version: string, verifyingContract: any }, value: { __typename?: 'CreateMirrorEIP712TypedDataValue', nonce: any, deadline: any, profileId: any, profileIdPointed: any, pubIdPointed: any, referenceModuleData: any, referenceModule: any, referenceModuleInitData: any } } } };
+
+export type RefreshMutationVariables = Exact<{
+  request: RefreshRequest;
+}>;
+
+
+export type RefreshMutation = { __typename?: 'Mutation', refresh: { __typename?: 'AuthenticationResult', accessToken: any, refreshToken: any } };
 
 export const MediaFieldsFragmentDoc = `
     fragment MediaFields on Media {
@@ -4371,13 +4366,29 @@ export const AuthenticateDocument = `
 export const useAuthenticateMutation = <
       TError = unknown,
       TContext = unknown
-    >(
-      dataSource: { endpoint: string, fetchParams?: RequestInit },
-      options?: UseMutationOptions<AuthenticateMutation, TError, AuthenticateMutationVariables, TContext>
-    ) =>
+    >(options?: UseMutationOptions<AuthenticateMutation, TError, AuthenticateMutationVariables, TContext>) =>
     useMutation<AuthenticateMutation, TError, AuthenticateMutationVariables, TContext>(
       ['authenticate'],
-      (variables?: AuthenticateMutationVariables) => fetcher<AuthenticateMutation, AuthenticateMutationVariables>(dataSource.endpoint, dataSource.fetchParams || {}, AuthenticateDocument, variables)(),
+      (variables?: AuthenticateMutationVariables) => fetcher<AuthenticateMutation, AuthenticateMutationVariables>(AuthenticateDocument, variables)(),
+      options
+    );
+export const ChallengeDocument = `
+    query Challenge($request: ChallengeRequest!) {
+  challenge(request: $request) {
+    text
+  }
+}
+    `;
+export const useChallengeQuery = <
+      TData = ChallengeQuery,
+      TError = unknown
+    >(
+      variables: ChallengeQueryVariables,
+      options?: UseQueryOptions<ChallengeQuery, TError, TData>
+    ) =>
+    useQuery<ChallengeQuery, TError, TData>(
+      ['Challenge', variables],
+      fetcher<ChallengeQuery, ChallengeQueryVariables>(ChallengeDocument, variables),
       options
     );
 export const CreateCommentTypedDataDocument = `
@@ -4418,13 +4429,10 @@ export const CreateCommentTypedDataDocument = `
 export const useCreateCommentTypedDataMutation = <
       TError = unknown,
       TContext = unknown
-    >(
-      dataSource: { endpoint: string, fetchParams?: RequestInit },
-      options?: UseMutationOptions<CreateCommentTypedDataMutation, TError, CreateCommentTypedDataMutationVariables, TContext>
-    ) =>
+    >(options?: UseMutationOptions<CreateCommentTypedDataMutation, TError, CreateCommentTypedDataMutationVariables, TContext>) =>
     useMutation<CreateCommentTypedDataMutation, TError, CreateCommentTypedDataMutationVariables, TContext>(
       ['createCommentTypedData'],
-      (variables?: CreateCommentTypedDataMutationVariables) => fetcher<CreateCommentTypedDataMutation, CreateCommentTypedDataMutationVariables>(dataSource.endpoint, dataSource.fetchParams || {}, CreateCommentTypedDataDocument, variables)(),
+      (variables?: CreateCommentTypedDataMutationVariables) => fetcher<CreateCommentTypedDataMutation, CreateCommentTypedDataMutationVariables>(CreateCommentTypedDataDocument, variables)(),
       options
     );
 export const DoesFollowDocument = `
@@ -4440,13 +4448,12 @@ export const useDoesFollowQuery = <
       TData = DoesFollowQuery,
       TError = unknown
     >(
-      dataSource: { endpoint: string, fetchParams?: RequestInit },
       variables: DoesFollowQueryVariables,
       options?: UseQueryOptions<DoesFollowQuery, TError, TData>
     ) =>
     useQuery<DoesFollowQuery, TError, TData>(
       ['doesFollow', variables],
-      fetcher<DoesFollowQuery, DoesFollowQueryVariables>(dataSource.endpoint, dataSource.fetchParams || {}, DoesFollowDocument, variables),
+      fetcher<DoesFollowQuery, DoesFollowQueryVariables>(DoesFollowDocument, variables),
       options
     );
 export const ExplorePublicationsDocument = `
@@ -4499,13 +4506,12 @@ export const useExplorePublicationsQuery = <
       TData = ExplorePublicationsQuery,
       TError = unknown
     >(
-      dataSource: { endpoint: string, fetchParams?: RequestInit },
       variables: ExplorePublicationsQueryVariables,
       options?: UseQueryOptions<ExplorePublicationsQuery, TError, TData>
     ) =>
     useQuery<ExplorePublicationsQuery, TError, TData>(
       ['ExplorePublications', variables],
-      fetcher<ExplorePublicationsQuery, ExplorePublicationsQueryVariables>(dataSource.endpoint, dataSource.fetchParams || {}, ExplorePublicationsDocument, variables),
+      fetcher<ExplorePublicationsQuery, ExplorePublicationsQueryVariables>(ExplorePublicationsDocument, variables),
       options
     );
 export const CreateFollowTypedDataDocument = `
@@ -4539,13 +4545,10 @@ export const CreateFollowTypedDataDocument = `
 export const useCreateFollowTypedDataMutation = <
       TError = unknown,
       TContext = unknown
-    >(
-      dataSource: { endpoint: string, fetchParams?: RequestInit },
-      options?: UseMutationOptions<CreateFollowTypedDataMutation, TError, CreateFollowTypedDataMutationVariables, TContext>
-    ) =>
+    >(options?: UseMutationOptions<CreateFollowTypedDataMutation, TError, CreateFollowTypedDataMutationVariables, TContext>) =>
     useMutation<CreateFollowTypedDataMutation, TError, CreateFollowTypedDataMutationVariables, TContext>(
       ['createFollowTypedData'],
-      (variables?: CreateFollowTypedDataMutationVariables) => fetcher<CreateFollowTypedDataMutation, CreateFollowTypedDataMutationVariables>(dataSource.endpoint, dataSource.fetchParams || {}, CreateFollowTypedDataDocument, variables)(),
+      (variables?: CreateFollowTypedDataMutationVariables) => fetcher<CreateFollowTypedDataMutation, CreateFollowTypedDataMutationVariables>(CreateFollowTypedDataDocument, variables)(),
       options
     );
 export const CreateMirrorTypedDataDocument = `
@@ -4583,13 +4586,27 @@ export const CreateMirrorTypedDataDocument = `
 export const useCreateMirrorTypedDataMutation = <
       TError = unknown,
       TContext = unknown
-    >(
-      dataSource: { endpoint: string, fetchParams?: RequestInit },
-      options?: UseMutationOptions<CreateMirrorTypedDataMutation, TError, CreateMirrorTypedDataMutationVariables, TContext>
-    ) =>
+    >(options?: UseMutationOptions<CreateMirrorTypedDataMutation, TError, CreateMirrorTypedDataMutationVariables, TContext>) =>
     useMutation<CreateMirrorTypedDataMutation, TError, CreateMirrorTypedDataMutationVariables, TContext>(
       ['createMirrorTypedData'],
-      (variables?: CreateMirrorTypedDataMutationVariables) => fetcher<CreateMirrorTypedDataMutation, CreateMirrorTypedDataMutationVariables>(dataSource.endpoint, dataSource.fetchParams || {}, CreateMirrorTypedDataDocument, variables)(),
+      (variables?: CreateMirrorTypedDataMutationVariables) => fetcher<CreateMirrorTypedDataMutation, CreateMirrorTypedDataMutationVariables>(CreateMirrorTypedDataDocument, variables)(),
+      options
+    );
+export const RefreshDocument = `
+    mutation Refresh($request: RefreshRequest!) {
+  refresh(request: $request) {
+    accessToken
+    refreshToken
+  }
+}
+    `;
+export const useRefreshMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<RefreshMutation, TError, RefreshMutationVariables, TContext>) =>
+    useMutation<RefreshMutation, TError, RefreshMutationVariables, TContext>(
+      ['Refresh'],
+      (variables?: RefreshMutationVariables) => fetcher<RefreshMutation, RefreshMutationVariables>(RefreshDocument, variables)(),
       options
     );
 
