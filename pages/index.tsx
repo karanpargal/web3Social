@@ -25,9 +25,6 @@ export default function Home() {
   );
 
   if (isLoading) return <div>Loading...</div>;
-  else {
-    console.log(data);
-  }
 
   if(error){
     console.log(error);

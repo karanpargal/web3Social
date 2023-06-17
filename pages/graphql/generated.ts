@@ -3620,6 +3620,13 @@ export type WorldcoinPhoneVerifyWebhookRequest = {
   signalType: WorldcoinPhoneVerifyType;
 };
 
+export type AddReactionMutationVariables = Exact<{
+  request: ReactionRequest;
+}>;
+
+
+export type AddReactionMutation = { __typename?: 'Mutation', addReaction?: any | null };
+
 export type AuthenticateMutationVariables = Exact<{
   request: SignedAuthChallenge;
 }>;
@@ -3796,6 +3803,13 @@ export type CreateUnfollowTypedDataMutationVariables = Exact<{
 
 
 export type CreateUnfollowTypedDataMutation = { __typename?: 'Mutation', createUnfollowTypedData: { __typename?: 'CreateUnfollowBroadcastItemResult', id: any, expiresAt: any, typedData: { __typename?: 'CreateBurnEIP712TypedData', domain: { __typename?: 'EIP712TypedDataDomain', name: string, chainId: any, version: string, verifyingContract: any }, types: { __typename?: 'CreateBurnEIP712TypedDataTypes', BurnWithSig: Array<{ __typename?: 'EIP712TypedDataField', name: string, type: string }> }, value: { __typename?: 'CreateBurnEIP712TypedDataValue', nonce: any, deadline: any, tokenId: string } } } };
+
+export type WhoReactedPublicationQueryVariables = Exact<{
+  request: WhoReactedPublicationRequest;
+}>;
+
+
+export type WhoReactedPublicationQuery = { __typename?: 'Query', whoReactedPublication: { __typename?: 'PaginatedWhoReactedResult', items: Array<{ __typename?: 'WhoReactedResult', reactionId: any, reaction: ReactionTypes, reactionAt: any, profile: { __typename?: 'Profile', id: any, name?: string | null, bio?: string | null, isFollowedByMe: boolean, isFollowing: boolean, followNftAddress?: any | null, metadata?: any | null, isDefault: boolean, handle: any, ownedBy: any, attributes?: Array<{ __typename?: 'Attribute', displayType?: string | null, traitType?: string | null, key: string, value: string }> | null, picture?: { __typename?: 'MediaSet', original: { __typename?: 'Media', url: any, width?: number | null, height?: number | null, mimeType?: any | null }, small?: { __typename?: 'Media', url: any, width?: number | null, height?: number | null, mimeType?: any | null } | null, medium?: { __typename?: 'Media', url: any, width?: number | null, height?: number | null, mimeType?: any | null } | null } | { __typename?: 'NftImage', contractAddress: any, tokenId: string, uri: any, verified: boolean } | null, coverPicture?: { __typename?: 'MediaSet', original: { __typename?: 'Media', url: any, width?: number | null, height?: number | null, mimeType?: any | null }, small?: { __typename?: 'Media', url: any, width?: number | null, height?: number | null, mimeType?: any | null } | null, medium?: { __typename?: 'Media', url: any, width?: number | null, height?: number | null, mimeType?: any | null } | null } | { __typename?: 'NftImage', contractAddress: any, tokenId: string, uri: any, verified: boolean } | null, dispatcher?: { __typename?: 'Dispatcher', address: any, canUseRelay: boolean } | null, stats: { __typename?: 'ProfileStats', totalFollowers: number, totalFollowing: number, totalPosts: number, totalComments: number, totalMirrors: number, totalPublications: number, totalCollects: number }, followModule?: { __typename?: 'FeeFollowModuleSettings', type: FollowModules, recipient: any, amount: { __typename?: 'ModuleFeeAmount', value: string, asset: { __typename?: 'Erc20', name: string, symbol: string, decimals: number, address: any } } } | { __typename?: 'ProfileFollowModuleSettings', type: FollowModules, contractAddress: any } | { __typename?: 'RevertFollowModuleSettings', type: FollowModules, contractAddress: any } | { __typename?: 'UnknownFollowModuleSettings', type: FollowModules, contractAddress: any, followModuleReturnData: any } | null, onChainIdentity: { __typename?: 'OnChainIdentity', proofOfHumanity: boolean, ens?: { __typename?: 'EnsOnChainIdentity', name?: any | null } | null, sybilDotOrg: { __typename?: 'SybilDotOrgIdentity', verified: boolean, source: { __typename?: 'SybilDotOrgIdentitySource', twitter: { __typename?: 'SybilDotOrgTwitterIdentity', handle?: string | null } } }, worldcoin: { __typename?: 'WorldcoinIdentity', isHuman: boolean } } } }>, pageInfo: { __typename?: 'PaginatedResultInfo', prev?: any | null, next?: any | null, totalCount?: number | null } } };
 
 export const MediaFieldsFragmentDoc = `
     fragment MediaFields on Media {
@@ -4389,6 +4403,20 @@ export const OrConditionFieldsNoRecursiveFragmentDoc = `
   }
 }
     `;
+export const AddReactionDocument = `
+    mutation addReaction($request: ReactionRequest!) {
+  addReaction(request: $request)
+}
+    `;
+export const useAddReactionMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<AddReactionMutation, TError, AddReactionMutationVariables, TContext>) =>
+    useMutation<AddReactionMutation, TError, AddReactionMutationVariables, TContext>(
+      ['addReaction'],
+      (variables?: AddReactionMutationVariables) => fetcher<AddReactionMutation, AddReactionMutationVariables>(AddReactionDocument, variables)(),
+      options
+    );
 export const AuthenticateDocument = `
     mutation authenticate($request: SignedAuthChallenge!) {
   authenticate(request: $request) {
@@ -4720,6 +4748,38 @@ export const useCreateUnfollowTypedDataMutation = <
     useMutation<CreateUnfollowTypedDataMutation, TError, CreateUnfollowTypedDataMutationVariables, TContext>(
       ['createUnfollowTypedData'],
       (variables?: CreateUnfollowTypedDataMutationVariables) => fetcher<CreateUnfollowTypedDataMutation, CreateUnfollowTypedDataMutationVariables>(CreateUnfollowTypedDataDocument, variables)(),
+      options
+    );
+export const WhoReactedPublicationDocument = `
+    query WhoReactedPublication($request: WhoReactedPublicationRequest!) {
+  whoReactedPublication(request: $request) {
+    items {
+      reactionId
+      reaction
+      reactionAt
+      profile {
+        ...ProfileFields
+      }
+    }
+    pageInfo {
+      ...CommonPaginatedResultInfoFields
+    }
+  }
+}
+    ${ProfileFieldsFragmentDoc}
+${MediaFieldsFragmentDoc}
+${FollowModuleFieldsFragmentDoc}
+${CommonPaginatedResultInfoFieldsFragmentDoc}`;
+export const useWhoReactedPublicationQuery = <
+      TData = WhoReactedPublicationQuery,
+      TError = unknown
+    >(
+      variables: WhoReactedPublicationQueryVariables,
+      options?: UseQueryOptions<WhoReactedPublicationQuery, TError, TData>
+    ) =>
+    useQuery<WhoReactedPublicationQuery, TError, TData>(
+      ['WhoReactedPublication', variables],
+      fetcher<WhoReactedPublicationQuery, WhoReactedPublicationQueryVariables>(WhoReactedPublicationDocument, variables),
       options
     );
 
