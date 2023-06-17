@@ -3627,6 +3627,13 @@ export type AuthenticateMutationVariables = Exact<{
 
 export type AuthenticateMutation = { __typename?: 'Mutation', authenticate: { __typename?: 'AuthenticationResult', accessToken: any, refreshToken: any } };
 
+export type BroadcastMutationVariables = Exact<{
+  request: BroadcastRequest;
+}>;
+
+
+export type BroadcastMutation = { __typename?: 'Mutation', broadcast: { __typename?: 'RelayError', reason: RelayErrorReasons } | { __typename?: 'RelayerResult', txHash: any, txId: any } };
+
 export type ChallengeQueryVariables = Exact<{
   request: ChallengeRequest;
 }>;
@@ -3782,6 +3789,13 @@ export type RefreshMutationVariables = Exact<{
 
 
 export type RefreshMutation = { __typename?: 'Mutation', refresh: { __typename?: 'AuthenticationResult', accessToken: any, refreshToken: any } };
+
+export type CreateUnfollowTypedDataMutationVariables = Exact<{
+  request: UnfollowRequest;
+}>;
+
+
+export type CreateUnfollowTypedDataMutation = { __typename?: 'Mutation', createUnfollowTypedData: { __typename?: 'CreateUnfollowBroadcastItemResult', id: any, expiresAt: any, typedData: { __typename?: 'CreateBurnEIP712TypedData', domain: { __typename?: 'EIP712TypedDataDomain', name: string, chainId: any, version: string, verifyingContract: any }, types: { __typename?: 'CreateBurnEIP712TypedDataTypes', BurnWithSig: Array<{ __typename?: 'EIP712TypedDataField', name: string, type: string }> }, value: { __typename?: 'CreateBurnEIP712TypedDataValue', nonce: any, deadline: any, tokenId: string } } } };
 
 export const MediaFieldsFragmentDoc = `
     fragment MediaFields on Media {
@@ -4392,6 +4406,28 @@ export const useAuthenticateMutation = <
       (variables?: AuthenticateMutationVariables) => fetcher<AuthenticateMutation, AuthenticateMutationVariables>(AuthenticateDocument, variables)(),
       options
     );
+export const BroadcastDocument = `
+    mutation Broadcast($request: BroadcastRequest!) {
+  broadcast(request: $request) {
+    ... on RelayerResult {
+      txHash
+      txId
+    }
+    ... on RelayError {
+      reason
+    }
+  }
+}
+    `;
+export const useBroadcastMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<BroadcastMutation, TError, BroadcastMutationVariables, TContext>) =>
+    useMutation<BroadcastMutation, TError, BroadcastMutationVariables, TContext>(
+      ['Broadcast'],
+      (variables?: BroadcastMutationVariables) => fetcher<BroadcastMutation, BroadcastMutationVariables>(BroadcastDocument, variables)(),
+      options
+    );
 export const ChallengeDocument = `
     query Challenge($request: ChallengeRequest!) {
   challenge(request: $request) {
@@ -4648,6 +4684,42 @@ export const useRefreshMutation = <
     useMutation<RefreshMutation, TError, RefreshMutationVariables, TContext>(
       ['Refresh'],
       (variables?: RefreshMutationVariables) => fetcher<RefreshMutation, RefreshMutationVariables>(RefreshDocument, variables)(),
+      options
+    );
+export const CreateUnfollowTypedDataDocument = `
+    mutation createUnfollowTypedData($request: UnfollowRequest!) {
+  createUnfollowTypedData(request: $request) {
+    id
+    expiresAt
+    typedData {
+      domain {
+        name
+        chainId
+        version
+        verifyingContract
+      }
+      types {
+        BurnWithSig {
+          name
+          type
+        }
+      }
+      value {
+        nonce
+        deadline
+        tokenId
+      }
+    }
+  }
+}
+    `;
+export const useCreateUnfollowTypedDataMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<CreateUnfollowTypedDataMutation, TError, CreateUnfollowTypedDataMutationVariables, TContext>) =>
+    useMutation<CreateUnfollowTypedDataMutation, TError, CreateUnfollowTypedDataMutationVariables, TContext>(
+      ['createUnfollowTypedData'],
+      (variables?: CreateUnfollowTypedDataMutationVariables) => fetcher<CreateUnfollowTypedDataMutation, CreateUnfollowTypedDataMutationVariables>(CreateUnfollowTypedDataDocument, variables)(),
       options
     );
 

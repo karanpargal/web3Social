@@ -38,6 +38,7 @@ export const fetcher = <TData, TVariables>(
 
     if (json.errors) {
       const { message } = json.errors[0] || {};
+      console.log(message);
       throw new Error(message || "Error…");
     }
 
