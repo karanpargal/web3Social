@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { MediaRenderer } from "@thirdweb-dev/react";
 import {
   useCreateFollowTypedDataMutation,
@@ -7,12 +7,16 @@ import {
   useCreateUnfollowTypedDataMutation,
   useAddReactionMutation,
   useWhoReactedPublicationQuery,
+  useCreateMirrorTypedDataMutation,
+  usePublicationQuery,
+  useCreateCollectTypedDataMutation,
+  useWhoCollectedPublicationQuery,
 } from "../graphql/generated";
 import { useAddress } from "@thirdweb-dev/react";
 import { useSDK } from "@thirdweb-dev/react";
 import { ReactionTypes } from "../graphql/generated";
 import useLensUser from "../auth/useLensUser";
-import { profile } from "console";
+import useLogin from "../auth/useLogin";
 
 type Props = {
   publication: any;
@@ -23,12 +27,67 @@ export default function Feed(props: Props) {
   const walletSdk = useSDK();
 
   const { tokenData, profileData } = useLensUser();
+  const { mutateAsync: requestLogin } = useLogin();
   const { mutateAsync: follow } = useCreateFollowTypedDataMutation();
   const { mutateAsync: broadcast } = useBroadcastMutation();
   const { mutateAsync: unfollow } = useCreateUnfollowTypedDataMutation();
   const { mutateAsync: addReaction } = useAddReactionMutation();
+  const { mutateAsync: createMirror } = useCreateMirrorTypedDataMutation();
+  const { mutateAsync: createCollect } = useCreateCollectTypedDataMutation();
+
+  async function collectPost() {
+    await requestLogin();
+    const result = await createCollect({
+      request: {
+        publicationId: props.publication?.id,
+      },
+    });
+
+    const typedData = result.createCollectTypedData?.typedData;
+    const signature = await walletSdk?.wallet.signTypedData(
+      typedData.domain,
+      typedData.types as Record<string, any>,
+      typedData.value
+    );
+    console.log("signature", signature);
+    const broadcastResult = await broadcastLens(
+      signature?.signature,
+      result.createCollectTypedData?.id
+    );
+
+    console.log("broadcast result", broadcastResult);
+    return broadcastResult;
+  }
+
+  async function mirrorPost() {
+    await requestLogin();
+    const result = await createMirror({
+      request: {
+        profileId: profileData.data?.defaultProfile?.id,
+        publicationId: props.publication?.id,
+        referenceModule: {
+          followerOnlyReferenceModule: false,
+        },
+      },
+    });
+    const typedData = result.createMirrorTypedData?.typedData;
+    const signature = await walletSdk?.wallet.signTypedData(
+      typedData.domain,
+      typedData.types as Record<string, any>,
+      typedData.value
+    );
+    console.log("signature", signature);
+    const broadcastResult = await broadcastLens(
+      signature?.signature,
+      result.createMirrorTypedData?.id
+    );
+
+    console.log("broadcast result", broadcastResult);
+    return broadcastResult;
+  }
 
   async function addReactionLens() {
+    await requestLogin();
     const result = await addReaction({
       request: {
         profileId: profileData.data?.defaultProfile?.id,
@@ -52,6 +111,7 @@ export default function Feed(props: Props) {
   }
 
   async function followLens() {
+    await requestLogin();
     const result = await follow({
       request: {
         follow: [
@@ -78,6 +138,7 @@ export default function Feed(props: Props) {
   }
 
   async function unfollowLens() {
+    await requestLogin();
     const result = await unfollow({
       request: {
         profile: props.publication?.profile?.id,
@@ -123,6 +184,20 @@ export default function Feed(props: Props) {
     },
   });
 
+  const publicationData = usePublicationQuery({
+    request: {
+      publicationId: props.publication?.id,
+    },
+  });
+
+  let mirrored = false;
+
+  publicationData.data?.publication?.mirrors?.map((mirror: any) => {
+    if (mirror.profile.id === profileData.data?.defaultProfile?.id) {
+      mirrored = true;
+    }
+  });
+
   let reaction = false;
 
   reactionData.data?.whoReactedPublication?.items.map((item) => {
@@ -131,6 +206,13 @@ export default function Feed(props: Props) {
     }
   });
 
+  const collectedData = useWhoCollectedPublicationQuery({
+    request: {
+      publicationId: props.publication?.id,
+    },
+  });
+
+  console.log("collected data", collectedData.data);
   return (
     <div className="flex flex-col bg-gray-600 p-16 border-2 border-gray-800 justify-center mx-80 text-ellipsis overflow-hidden ... ">
       <div className="flex flex-row justify-between">
@@ -172,7 +254,7 @@ export default function Feed(props: Props) {
           />
         )}
       </div>
-      <div>
+      <div className="flex justify-between">
         {reaction ? (
           <button className="bg-blue-700 text-white font-bold py-2 px-4 rounded h-10">
             Liked
@@ -187,6 +269,29 @@ export default function Feed(props: Props) {
             Like
           </button>
         )}
+        {mirrored ? (
+          <button className="bg-blue-700 text-white font-bold py-2 px-4 rounded h-10">
+            Mirrored
+          </button>
+        ) : (
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded h-10"
+            onClick={() => {
+              mirrorPost();
+            }}
+          >
+            Mirror
+          </button>
+        )}
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded h-10"
+          onClick={() => {
+            collectPost();
+          }}
+        >
+          {" "}
+          Collect{" "}
+        </button>
       </div>
     </div>
   );
